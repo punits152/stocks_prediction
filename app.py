@@ -41,7 +41,7 @@ app.layout = html.Div(
         html.Div(
             [   
                 html.Div(
-                html.P("Welcome to the Stock Dash App!", className="header"),style={"border":"dotted"}),
+                html.P("Welcome to Hariom's Stock Dash App!", className="header"),style={"border":"dotted"}),
                 html.Br(),
 
                 html.Div([
