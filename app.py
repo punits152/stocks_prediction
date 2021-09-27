@@ -139,7 +139,7 @@ def get_prices(clicks,start_date,end_date,stock_name):
             df = yf.download(stock_name,start_date,end_date)
             df.reset_index(inplace=True)
             fig = get_stock_price_fig(df)
-            
+            fig.update_traces(opacity=0.5)
             figure = dcc.Graph(figure = fig)
             return [figure]       
         except:
@@ -156,6 +156,7 @@ def get_indication(clicks,start_date,end_date,stock_name):
             df = yf.download(stock_name,start_date,end_date)
             df.reset_index(inplace=True)
             fig = get_more(df)
+            fig.update_traces(opacity=0.5)
             figure = dcc.Graph(figure = fig)
             return [figure]       
         except:
