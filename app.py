@@ -1,17 +1,20 @@
-import dash
 from datetime import datetime as dt
-import dash_html_components as html
-import dash_core_components as dcc
 
-import yfinance as yf
+import dash
+import dash_bootstrap_components as dbc
+import dash_core_components as dcc
+import dash_html_components as html
+from dash_html_components.Br import Br
+from dash_html_components.Div import Div
+from dash_html_components.H1 import H1
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pandas as pd
-
-from dash.dependencies  import Input,Output,State
+import yfinance as yf
+from dash.dependencies import Input, Output, State
 
 # Building the app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 server = app.server
 
 # To get the graph of the stock prices
@@ -41,16 +44,16 @@ app.layout = html.Div(
         html.Div(
             [   
                 html.Div(
-                html.P("Welcome to Hariom's Stock Dash App!", className="header"),style={"border":"dotted"}),
+                dbc.Row(html.H1("Welcome to Hariom's Stock Dash App!"))),
                 html.Br(),
 
                 html.Div([
                     # stock code input
                     
-                    html.P("Input Stock Code",className="header"),
+                    html.H3("Input Stock Code",className="header"),
                     html.Br(),
 
-                    dcc.Input(id='code',placeholder="Stock Code",type="text",style={"color":"balck"}),
+                    dcc.Input(id='code',placeholder="Stock Code",type="text"),
 
                     html.Button(children="Submit",id="submit-button",className="button",),
                     ]),
@@ -67,6 +70,11 @@ app.layout = html.Div(
                 html.Button(children="Stock Price", id="stock-price-button",className="button"),
                 # Indicators button
                 html.Button(children="Indicators", id="indicators-button",className="button"),
+                ]),
+
+            html.Br(),    
+            
+                html.Div([
                 # Number of days of forecast input
                 dcc.Input(id="num-days-input",placeholder="Number of Days",className=""),
                 # Forecast button
@@ -77,24 +85,28 @@ app.layout = html.Div(
             ),
         
         # 2nd main division
+        html.Br(),
+        html.Br(),
 
         html.Div(
             [
             html.Div(#logo
             [html.Img(id="logo-link"),
             #company_name
-             html.H1(id="company-name",style={"padding":"2vw","border":"center","font-size":"3vw","word-wrap":"center"}),
+             html.H1(id="company-name"),
             ]
-            , style={"display":"flex","padding":"2vw"}),
+            ,),
 
             html.Br(),
 
             html.Div(#Description
-            [html.P(id="description", style={"padding":"2vw"})]
+            [html.P(id="description", )]
                 , className="description_ticker"),
 
             html.Div(# Stock plot
                 id="stock-price-plot"),
+
+            html.Br(),
 
             html.Div([#indicator plot
                 ],id="main-content"),
@@ -139,7 +151,6 @@ def get_prices(clicks,start_date,end_date,stock_name):
             df = yf.download(stock_name,start_date,end_date)
             df.reset_index(inplace=True)
             fig = get_stock_price_fig(df)
-            fig.update_traces(opacity=0.5)
             figure = dcc.Graph(figure = fig)
             return [figure]       
         except:
@@ -156,7 +167,6 @@ def get_indication(clicks,start_date,end_date,stock_name):
             df = yf.download(stock_name,start_date,end_date)
             df.reset_index(inplace=True)
             fig = get_more(df)
-            fig.update_traces(opacity=0.5)
             figure = dcc.Graph(figure = fig)
             return [figure]       
         except:
