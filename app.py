@@ -12,7 +12,6 @@ import pandas as pd
 from datetime import datetime
 
 import plotly.express as px
-import plotly.graph_objects as go
 import yfinance as yf
 from dash.dependencies import Input, Output, State
 
@@ -109,14 +108,21 @@ app.layout = html.Div(
             [html.P(id="description", )]
                 , className="description_ticker"),
 
+            html.H2("Prices: "),
             html.Div(# Stock plot
                 id="stock-price-plot"),
 
             html.Br(),
 
+            html.H2("Trend: "),
+
             html.Div([#indicator plot
                 ],id="main-content"),
             
+            html.Br(),
+
+            html.H2("Predictions: "),
+
             html.Div([#forecast
                 ],id="forecast-plot")],
          style={"padding":"1vw"})
@@ -187,7 +193,7 @@ def forecast(clicks,stock_name,days_to_forecast):
     # Building model
     if clicks is not None:
         try:
-            df = yf.download(stock_name,period="180d")
+            df = yf.download(stock_name,period="60d")
             print(df.shape)
             df.reset_index(inplace=True)
             df["Date"] = df['Date'].map(date2num)
