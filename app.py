@@ -4,9 +4,7 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash_html_components.Br import Br
-from dash_html_components.Div import Div
-from dash_html_components.H1 import H1
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
