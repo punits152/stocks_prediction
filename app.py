@@ -6,10 +6,18 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 import pandas as pd
+import numpy as np
+from matplotlib.dates import date2num
+import pandas as pd
+from datetime import datetime
+
 import plotly.express as px
 import plotly.graph_objects as go
 import yfinance as yf
 from dash.dependencies import Input, Output, State
+
+from sklearn.svm import SVR
+from sklearn.model_selection import train_test_split
 
 # Building the app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
@@ -74,9 +82,9 @@ app.layout = html.Div(
             
                 html.Div([
                 # Number of days of forecast input
-                dcc.Input(id="num-days-input",placeholder="Number of Days",className=""),
+                dcc.Input(id="num-days-input",placeholder="Number of Days",type="number"),
                 # Forecast button
-                html.Button(children="Forecast", id="forecast-button",className="button"),
+                html.Button(children="forecast-button", id="forecast-button",className="button"),
                     ]),
             ],
             className="inputs"
@@ -110,7 +118,7 @@ app.layout = html.Div(
                 ],id="main-content"),
             
             html.Div([#forecast
-                ],id="forecast-content")],
+                ],id="forecast-plot")],
          style={"padding":"1vw"})
 
     ],className="container")
@@ -169,6 +177,45 @@ def get_indication(clicks,start_date,end_date,stock_name):
             return [figure]       
         except:
             pass
+
+@app.callback([Output(component_id="forecast-plot",component_property='children')],
+                [Input(component_id="forecast-button",component_property="n_clicks")],
+                [State(component_id="code",component_property="value"),
+                 State(component_id="num-days-input",component_property="value")])
+def forecast(clicks,stock_name,days_to_forecast):
+    
+    # Building model
+    if clicks is not None:
+        try:
+            df = yf.download(stock_name,period="180d")
+            print(df.shape)
+            df.reset_index(inplace=True)
+            df["Date"] = df['Date'].map(date2num)
+            X_train, X_test, Y_train,Y_test = train_test_split(df["Date"], df["Close"], test_size=0.1, random_state=123)
+            svr = SVR()
+            svr.fit(np.array(X_train).reshape(-1,1),Y_train)
+            y_hat = svr.predict(np.array(X_test).reshape(-1,1))
+
+            # Now the model is OKK and we have to predict closing price for next days 
+
+            datelist = pd.Series(pd.date_range(datetime.today(), periods=days_to_forecast))
+
+            X_pred = datelist.map(date2num)
+
+            predicted_price = svr.predict(np.array(X_pred).reshape(-1,1))
+
+            df = pd.DataFrame({"Date":datelist,"Close": predicted_price})
+
+            fig = px.line(df,
+                  x=df.Date , # Date str,
+                  y=[df.Close], # list of 'Open' and 'Close',
+                  title="Predicted Price vs Date")
+            
+            figure = dcc.Graph(figure = fig)
+            return [figure]    
+        
+        except:
+             pass
 
 
 
